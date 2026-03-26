@@ -35,7 +35,7 @@ LONGITUD = -100.462507
 LUGAR_NOMBRE = "Salones La Concordia"
 DIRECCION_TEXTO = "Carlos Salinas de Gortari 18, Jurica Pueblo, 76100 Santiago de Querétaro, Qro."
 
-FOTOS_CARRUSEL = ["foto1.jpg", "foto2.jpg"] 
+FOTOS_CARRUSEL = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpeg", "foto5.jpeg", "foto6.jpeg"]  # Reemplaza con los nombres de tus fotos
 
 # --- PANTALLA DE CARGA Y ESTILOS CSS ---
 st.markdown("""
