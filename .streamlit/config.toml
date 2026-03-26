@@ -1,0 +1,7 @@
+[theme]
+base = "dark"
+primaryColor = "#00E5FF"       # Cyan Neón
+backgroundColor = "#0D1117"    # Fondo oscuro estilo Terminal
+secondaryBackgroundColor = "#161B22" # Tarjetas oscuras
+textColor = "#E5E7EB"         # Texto claro
+font = "monospace"            # Letra estilo código
