@@ -26,6 +26,10 @@ CARRERA = "Ingeniería en Sistemas Computacionales"
 UNIVERSIDAD = "CESBA"
 FECHA_EVENTO = datetime.datetime(2026, 6, 27, 18, 0, 0) 
 
+# --- DATOS DE LA ORGANIZADORA (Enlace oculto) ---
+# Pon aquí el nombre y teléfono real de la organizadora
+ORGANIZADORA = {"nombre": "Mariana Hdz", "telefono": "524427474146"}
+
 DIRECTORIO_GRADUADOS = {
     "melina": {"nombre": "Melina", "telefono": "524426024744"},
     "alejandra": {"nombre": "Alejandra", "telefono": "524421719459"},
@@ -258,7 +262,6 @@ html_carousel += """
 </body>
 </html>
 """
-# Renderizamos el carrusel inyectado en la página de Streamlit
 components.html(html_carousel, height=460)
 
 st.markdown("---")
@@ -277,9 +280,17 @@ if "invitador" in st.query_params:
 else:
     invitador_url = ""
 
-if invitador_url in DIRECTORIO_GRADUADOS:
+# Lógica mágica: Si el enlace dice ?invitador=organizadora, mostramos a la organizadora
+if invitador_url == "organizadora":
+    anfitrion = ORGANIZADORA
+    st.write(f"<div style='text-align: center; color: #E5E7EB; margin-bottom: 15px;'>Comunícate con nuestra organizadora <b>{anfitrion['nombre']}</b> para apartar tus boletos:</div>", unsafe_allow_html=True)
+
+# Si el enlace es de un graduado, lo mostramos a él
+elif invitador_url in DIRECTORIO_GRADUADOS:
     anfitrion = DIRECTORIO_GRADUADOS[invitador_url]
     st.write(f"<div style='text-align: center; color: #E5E7EB; margin-bottom: 15px;'>Confirma tu asistencia enviándole un WhatsApp a <b>{anfitrion['nombre']}</b>:</div>", unsafe_allow_html=True)
+
+# Si entraron sin enlace o con uno incorrecto, muestran la lista desplegable (SIN la organizadora)
 else:
     st.write("<div style='text-align: center; color: #E5E7EB; margin-bottom: 15px;'>¿Quién te invitó a la graduación? Selecciona su nombre:</div>", unsafe_allow_html=True)
     nombres_opciones = [datos["nombre"] for datos in DIRECTORIO_GRADUADOS.values()]
@@ -288,7 +299,13 @@ else:
 
 numero_final = anfitrion["telefono"]
 nombre_final = anfitrion["nombre"]
-mensaje_personalizado = f"¡Hola {nombre_final}! Me encantaría asistir a la graduación de Sistemas. ¿Me podrías apartar boletos por favor?"
+
+# Mensaje diferente si es la organizadora
+if invitador_url == "organizadora":
+    mensaje_personalizado = f"¡Hola {nombre_final}! Me interesa apartar boletos para la graduación de Sistemas CESBA. ¿Me podrías dar información por favor?"
+else:
+    mensaje_personalizado = f"¡Hola {nombre_final}! Me encantaría asistir a tu graduación de Sistemas. ¿Me podrías apartar boletos por favor?"
+
 link_whatsapp = f"https://wa.me/{numero_final}?text={mensaje_personalizado.replace(' ', '%20')}"
 
 st.markdown(f'<div style="text-align: center; margin: 20px 0 40px 0;"><a href="{link_whatsapp}" target="_blank" style="text-decoration: none;"><button style="background-color: #0D1117; color: #00E5FF; border: 2px solid #00E5FF; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; font-family: \'Courier New\', Courier, monospace; border-radius: 8px; width: 90%; max-width: 350px; cursor: pointer; animation: pulseTech 2s infinite; transition: all 0.3s ease;">> return WhatsApp(Mensaje);</button></a></div>', unsafe_allow_html=True)
