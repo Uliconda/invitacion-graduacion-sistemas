@@ -35,7 +35,7 @@ LONGITUD = -100.462507
 LUGAR_NOMBRE = "Salones La Concordia"
 DIRECCION_TEXTO = "Carlos Salinas de Gortari 18, Jurica Pueblo, 76100 Santiago de Querétaro, Qro."
 
-FOTOS_CARRUSEL = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpeg", "foto5.jpeg", "foto6.jpeg", "foto7.jpeg", "foto8.jpeg", "foto9.jpeg", "foto10.jpeg", "foto11.jpeg", "foto12.jpeg", "foto13.jpeg", "foto14.jpeg", "foto15.jpeg", "foto16.jpeg", "foto17.jpeg", "foto18.jpeg", "foto19.jpeg"] # Agrega tus fotos aquí
+FOTOS_CARRUSEL = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpeg", "foto5.jpeg", "foto6.jpeg", "foto7.jpeg", "foto8.jpeg", "foto9.jpeg", "foto10.jpeg", "foto11.jpeg", "foto12.jpeg", "foto13.jpeg", "foto14.jpeg", "foto15.jpeg", "foto16.jpeg", "foto17.jpeg", "foto18.jpeg", "foto19.jpeg"] # Tus fotos
 
 # --- PANTALLA DE CARGA Y ESTILOS CSS ---
 st.markdown("""
@@ -250,7 +250,7 @@ with col_vest:
 
 st.markdown("---")
 
-# --- CARRUSEL DE FOTOS ---
+# --- CARRUSEL DE FOTOS (VERSIÓN LOOP INFINITO SUAVE) ---
 st.markdown("<h3 style='text-align: center; color: #00E5FF;'># Nuestros Recuerdos</h3>", unsafe_allow_html=True)
 
 imgs_encoded = []
@@ -259,35 +259,61 @@ for img_path in FOTOS_CARRUSEL:
     if b64:
         imgs_encoded.append(f"data:image/jpeg;base64,{b64}")
 
-if imgs_encoded:
+if len(imgs_encoded) > 0:
+    # TRUCO DE MAGIA: Duplicamos la primera foto al final para un loop infinito sin cortes
+    imgs_to_render = imgs_encoded + [imgs_encoded]
+    num_originales = len(imgs_encoded)
+    
+    # Generamos los fotogramas (keyframes) dinámicamente con Python
+    keyframes = ""
+    for i in range(num_originales + 1):
+        porcentaje_base = (i / num_originales) * 100
+        
+        if i == 0:
+            keyframes += f"0% {{ transform: translateX(0%); }}\n"
+            keyframes += f"{(0.8 / num_originales) * 100}% {{ transform: translateX(0%); }}\n"
+        elif i == num_originales:
+            keyframes += f"100% {{ transform: translateX(-{num_originales * 100}%); }}\n"
+        else:
+            llegada = porcentaje_base
+            keyframes += f"{llegada}% {{ transform: translateX(-{i * 100}%); }}\n"
+            pausa_fin = llegada + ((0.8 / num_originales) * 100)
+            keyframes += f"{pausa_fin}% {{ transform: translateX(-{i * 100}%); }}\n"
+
+    # Tiempo total: 4 segundos por foto
+    tiempo_total = num_originales * 4 
+
     html_carrusel = f"""
     <style>
         .carousel-container {{
             width: 100%; max-width: 800px; margin: auto; overflow: hidden;
             border-radius: 15px; border: 2px solid #30363D;
             box-shadow: 0 8px 25px rgba(0,229,255,0.15);
+            position: relative;
         }}
         .carousel-slide {{
             display: flex; width: 100%;
-            animation: slideAnimation {len(imgs_encoded) * 8}s infinite ease-in-out;
+            /* linear hace que las transiciones respeten exactamente nuestros keyframes */
+            animation: slideAnimation {tiempo_total}s infinite linear;
         }}
         .carousel-slide img {{ 
-            width: 100%; height: 450px; object-fit: cover; filter: brightness(0.9); 
+            /* flex: 0 0 100% asegura que cada foto mida exactamente el ancho de la pantalla */
+            flex: 0 0 100%; width: 100%; height: 450px; 
+            object-fit: cover; filter: brightness(0.9); 
         }}
         @keyframes slideAnimation {{
-            {' '.join([f"{i * (100 // max(1, len(imgs_encoded)))}% {{ transform: translateX(-{i * 100}%); }}" for i in range(len(imgs_encoded))])}
-            100% {{ transform: translateX(0%); }}
+            {keyframes}
         }}
     </style>
     <div class="carousel-container">
         <div class="carousel-slide">
-            {''.join([f'<img src="{img_src}" alt="Foto {i+1}">' for i, img_src in enumerate(imgs_encoded)])}
+            {''.join([f'<img src="{img_src}" alt="Recuerdo {i+1}">' for i, img_src in enumerate(imgs_to_render)])}
         </div>
     </div>
     """
     st.markdown(html_carrusel, unsafe_allow_html=True)
 else:
-    st.info("🖼️ (Agrega tus fotos a la carpeta para ver el carrusel).")
+    st.info("🖼️ (Agrega tus fotos a la carpeta con los nombres correctos para ver el carrusel).")
 
 st.markdown("---")
 
